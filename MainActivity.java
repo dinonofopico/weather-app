@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.pm.PackageManager;
+import android.icu.text.DateFormat;
+import android.icu.text.SimpleDateFormat;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -39,6 +41,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -57,27 +60,42 @@ public class MainActivity extends AppCompatActivity {
     private String API_KEY = "&appid="+ "902d455b6cd341e39b4d3c2916e21a0e";
     private String WEATHER_API = "https://api.openweathermap.org/data/2.5/forecast?" +
             "units=metric";
+    int dayOfTheWeek;
     Date date;
+
+    Calendar calendar;
+    SimpleDateFormat simpleDateFormat;
+    String [] dayOfTheWeekName = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+            "Saturday", "Sunday"};
+    int [] weatherIcon ={R.drawable.clear, R.drawable.clear2x, R.drawable.clear3x,
+            R.drawable.partlysunny, R.drawable.partlysunny2x, R.drawable.partlysunny3x,
+    R.drawable.rain, R.drawable.rain2x, R.drawable.rain3x},
+            mainIcon = {R.drawable.forest_sunny,
+            R.drawable.forest_cloudy, R.drawable.forest_rainy};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        date = new Date();
 
         recyclerView = findViewById(R.id.weather_lists);
-        currentTemp = (TextView) findViewById(R.id.currentTemp);
-        currentTemp1 = (TextView) findViewById(R.id.currentTemp1);
-        minTemp = (TextView) findViewById(R.id.minTemp);
-        maxTemp = (TextView) findViewById(R.id.maxTemp);
-        currentTempImg = (ImageView) findViewById(R.id.currentTempImg);
+
+        calendar = Calendar.getInstance();
+        date = new Date();
+        calendar.setTime(date);
+        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        dayOfTheWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        dayOfTheWeek = dayOfTheWeek - 1;
+
         weathers = new ArrayList<>();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         checkLocationPermission();
 
     }
 
-
+// the function for getting permission on user's device
     private void checkLocationPermission() {
 
         if (ActivityCompat.checkSelfPermission(MainActivity.this,
@@ -90,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    // the function to get the current user's location
 
     private void getLocation() {
 
@@ -137,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
                         weatherData(url);
 
-                        Toast.makeText(getApplicationContext(),
-                                addresses.get(0).getAddressLine(0)
-                                , Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(),
+//                                Integer.toString(dayOfTheWeek)
+//                                , Toast.LENGTH_LONG).show();
 
                     } catch (IOException e) {
 
@@ -152,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    // function for getting data from the api
 
     private void weatherData(String url) {
 
@@ -169,8 +191,14 @@ public class MainActivity extends AppCompatActivity {
                             jsonObject = new JSONObject(response);
                             JSONArray weatherData = jsonObject.getJSONArray("list");
 
+                            int tempDay, nextDay = 0, sky_cover = 0;
+
+
 
                             for(int i = 0; i < 6; i++ ){
+
+                                String temp, temp_min, temp_max;
+                                int t, tmin, tmax;
 
                                 weather = new Weather();
 
@@ -189,43 +217,85 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                                String temp = tempDetails.getString("temp"),
-                                temp_min = tempDetails.getString("temp_min"),
-                                        temp_max = tempDetails.getString("temp_max");
+                                temp = tempDetails.getString("temp");
+                                temp_min = tempDetails.getString("temp_min");
+                                temp_max = tempDetails.getString("temp_max");
+
+                                t = Math.round(Float.parseFloat(temp));
+                                tmin = Math.round(Float.parseFloat(temp_min));
+                                tmax = Math.round(Float.parseFloat(temp_max));
+
+                                temp = Float.toString(t);
+                                temp_min = Float.toString(tmin);
+                                temp_max = Float.toString(tmax);
 
 
-                                if(i > 0){
 
-                                    weather.setTemperature(temp+"\u2103");
-                                    weather.setDay(condition);
-                                    weathers.add(weather);
+                                // set a day of the week
 
+                                    if((dayOfTheWeek >= 1 && dayOfTheWeek < 7) && i > 0){
+
+                                        nextDay = dayOfTheWeek + 1;
+
+                                        dayOfTheWeek = nextDay;
+                                    }else if(dayOfTheWeek == 7){
+
+                                        nextDay = 1;
+                                        dayOfTheWeek = nextDay;
+
+                                    }
+
+                                ///////////////////////
+
+
+                                // update the main picture
+
+                                if(condition.toLowerCase().contains("rain")){
+
+                                    sky_cover = 2;
+
+                                }else if (condition.toLowerCase().contains("cloudy")){
+
+                                    sky_cover = 1;
+                                }else{
+
+                                    sky_cover = 0;
                                 }
 
 
                                 if(i == 0){
+
+                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,
+                                            null));
+                                    weather.setPosition(i);
+                                    weather.setTemperature(temp+"\u2103");
+                                    weather.setDay("");
+                                    weather.setWeatherIcon(mainIcon[sky_cover]);
+                                    weathers.add(weather);
 //
-                                    currentTemp.setText(temp+"\u2103"+"\n"+condition);
-                                    currentTemp1.setText(temp+"\u2103"+"\nclouds");
-                                    minTemp.setText(temp_min+"\u2103");
-                                    maxTemp.setText(temp_max+"\u2103");
+//                                    weather = new Weather();
+//                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,null));
+//                                    weather.setTemperature(temp_max+"\u2103");
+//                                    weather.setDay(temp_min+"\u2103");
+//                                    weather.setWeatherIcon(weatherIcon[0]);
+//                                    weathers.add(weather);
+                                }
+                                else {
 
-                                    if(condition == "Cloudy")
-                                        currentTempImg.setImageResource(R.drawable.forest_cloudy);
 
-                                    if(condition == "Rain")
-                                        currentTempImg.setImageResource(R.drawable.forest_rainy);
 
-                                    if(condition.equals("Clear")){
-
-                                        currentTempImg.setImageResource(R.drawable.forest_sunny);
-//                                        currentTemp.setBackgroundColor(getResources().
-//                                                getColor(R.color.forestSunny, null));
-
-                                    }
+                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,
+                                            null));
+                                    weather.setPosition(i);
+                                    weather.setTemperature(temp+"\u2103");
+                                    weather.setDay(dayOfTheWeekName[nextDay -1]);
+                                    weather.setWeatherIcon(weatherIcon[0]);
+                                    weathers.add(weather);
 
                                 }
-//
+
+                                // Minor work
+
                             }
 
 
