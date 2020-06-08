@@ -194,11 +194,81 @@ public class MainActivity extends AppCompatActivity {
                             int tempDay, nextDay = 0, sky_cover = 0;
 
 
+                            // populate the firs two rows of the recycleyView
+                            for(int j = 0; j < 2; j++){
 
-                            for(int i = 0; i < 6; i++ ){
+                                String temp_min, temp_max, temp;
+                                int tmin, tmax, t;
 
-                                String temp, temp_min, temp_max;
-                                int t, tmin, tmax;
+                                weather = new Weather();
+
+                                JSONObject tempDetails = null, sky = null;
+                                JSONArray  weatherDetails = null;
+
+                                JSONObject tempObj = weatherData.getJSONObject(j);
+
+                                tempDetails = tempObj.getJSONObject("main");
+
+                                weatherDetails = tempObj.getJSONArray("weather");
+
+                                sky = weatherDetails.getJSONObject(0);
+
+                                String condition = sky.getString("main");
+
+                                temp = tempDetails.getString("temp");
+                                temp_min = tempDetails.getString("temp_min");
+                                temp_max = tempDetails.getString("temp_max");
+                                tmin = Math.round(Float.parseFloat(temp_min));
+                                tmax = Math.round(Float.parseFloat(temp_max));
+                                t = Math.round(Float.parseFloat(temp));
+                                temp_min = Float.toString(tmin);
+                                temp_max = Float.toString(tmax);
+                                temp = Float.toString(t);
+
+                                if(j == 0){
+
+                                    // update the main picture
+
+                                    if(condition.toLowerCase().contains("rain")){
+
+                                        sky_cover = 2;
+
+                                    }else if (condition.toLowerCase().contains("cloudy")){
+
+                                        sky_cover = 1;
+                                    }else{
+
+                                        sky_cover = 0;
+                                    }
+
+                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,
+                                            null));
+                                    weather.setPosition(j);
+                                    weather.setTemperature(temp+"\u2103");
+                                    weather.setCondition(condition);
+                                    weather.setWeatherIcon(mainIcon[sky_cover]);
+                                    weathers.add(weather);
+
+                                }else {
+
+                                    weather = new Weather();
+                                    weather.setPosition(j);
+                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,
+                                            null));
+                                    weather.setMax(temp_max+"\u2103\nmax");
+                                    weather.setTemperature(temp+"\u2103\n current");
+                                    weather.setMin(temp_min+"\u2103\nmax");
+                                    weather.setWeatherIcon(weatherIcon[0]);
+                                    weathers.add(weather);
+                                }
+
+                            }
+
+
+                            for(int i = 1; i < 6; i++ ){
+
+                                String temp;
+                                int t;
 
                                 weather = new Weather();
 
@@ -218,18 +288,12 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 temp = tempDetails.getString("temp");
-                                temp_min = tempDetails.getString("temp_min");
-                                temp_max = tempDetails.getString("temp_max");
+
 
                                 t = Math.round(Float.parseFloat(temp));
-                                tmin = Math.round(Float.parseFloat(temp_min));
-                                tmax = Math.round(Float.parseFloat(temp_max));
+
 
                                 temp = Float.toString(t);
-                                temp_min = Float.toString(tmin);
-                                temp_max = Float.toString(tmax);
-
-
 
                                 // set a day of the week
 
@@ -247,52 +311,14 @@ public class MainActivity extends AppCompatActivity {
 
                                 ///////////////////////
 
-
-                                // update the main picture
-
-                                if(condition.toLowerCase().contains("rain")){
-
-                                    sky_cover = 2;
-
-                                }else if (condition.toLowerCase().contains("cloudy")){
-
-                                    sky_cover = 1;
-                                }else{
-
-                                    sky_cover = 0;
-                                }
-
-
-                                if(i == 0){
-
                                     weather.setBgColor(getResources().getColor(R.color.forestSunny,
                                             null));
-                                    weather.setPosition(i);
-                                    weather.setTemperature(temp+"\u2103");
-                                    weather.setDay("");
-                                    weather.setWeatherIcon(mainIcon[sky_cover]);
-                                    weathers.add(weather);
-//
-//                                    weather = new Weather();
-//                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,null));
-//                                    weather.setTemperature(temp_max+"\u2103");
-//                                    weather.setDay(temp_min+"\u2103");
-//                                    weather.setWeatherIcon(weatherIcon[0]);
-//                                    weathers.add(weather);
-                                }
-                                else {
-
-
-
-                                    weather.setBgColor(getResources().getColor(R.color.forestSunny,
-                                            null));
-                                    weather.setPosition(i);
+                                    weather.setPosition(i + 1);
                                     weather.setTemperature(temp+"\u2103");
                                     weather.setDay(dayOfTheWeekName[nextDay -1]);
                                     weather.setWeatherIcon(weatherIcon[0]);
                                     weathers.add(weather);
 
-                                }
 
                                 // Minor work
 

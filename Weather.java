@@ -2,12 +2,13 @@ package za.co.dvtweatherapp;
 
 public class Weather {
 
-    private  String day, temperature, max, min;
+    private  String day, temperature, max, min, condition;
     private int weatherIcon, bgColor, position;
 
     public  Weather(){}
     public Weather(String day, String temperature, int weatherIcon, int bgColor, int position,
-                   String max, String min) {
+                   String max, String min, String condition) {
+
         this.day = day;
         this.temperature = temperature;
         this.weatherIcon = weatherIcon;
@@ -15,6 +16,7 @@ public class Weather {
         this.position = position;
         this.max = max;
         this.min = min;
+        this.condition = condition;
     }
 
     public String getDay() {
@@ -71,5 +73,13 @@ public class Weather {
 
     public void setMin(String min) {
         this.min = min;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

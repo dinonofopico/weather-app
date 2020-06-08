@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -37,11 +38,11 @@ public class Adapter extends RecyclerView.Adapter {
             return 0;
         }
 
-//        if(weather.get(position).getPosition() == 1){
-//
-//            return 1;
-//        }
-        return 1;
+        if(weather.get(position).getPosition() == 1){
+
+            return 1;
+        }
+        return 2;
     }
 
     @NonNull
@@ -57,11 +58,11 @@ public class Adapter extends RecyclerView.Adapter {
             return new ViewHolderTwo(view);
 
         }
-//        else if(i == 1){
-//
-//            view = inflater.inflate(R.layout.min_max_row, viewGroup, false);
-//            return  new ViewHolderThree(view);
-//        }
+        else if(i == 1){
+
+            view = inflater.inflate(R.layout.min_max_row, viewGroup, false);
+            return  new ViewHolderThree(view);
+        }
 
         view = inflater.inflate(R.layout.weather_list, viewGroup, false);
 
@@ -76,19 +77,21 @@ public class Adapter extends RecyclerView.Adapter {
 
             ViewHolderTwo viewHolder1 = (ViewHolderTwo) viewHolder;
 //
-//            viewHolder1.currentTemp.setText(weather.get(i).getDay());
+            viewHolder1.condition.setText(weather.get(i).getCondition());
             viewHolder1.currentTemp.setText(weather.get(i).getTemperature());
             viewHolder1.currentTempImg.setImageResource(weather.get(i).getWeatherIcon());
 //
 
 //
         }
-//        else if(weather.get(i).getPosition() == 1){
-//
-//            ViewHolderThree viewHolderThree = (ViewHolderThree) viewHolder;
-//            viewHolderThree.min.setText(weather.get(i).getMin());
-//            viewHolderThree.max.setText(weather.get(i).getMax());
-//        }
+        else if(weather.get(i).getPosition() == 1){
+
+            ViewHolderThree viewHolderThree = (ViewHolderThree) viewHolder;
+            viewHolderThree.min.setText(weather.get(i).getMin());
+            viewHolderThree.max.setText(weather.get(i).getMax());
+            viewHolderThree.current.setText(weather.get(i).getTemperature());
+            viewHolderThree.constraintLayout.setBackgroundColor(weather.get(i).getBgColor());
+        }
         else {
 //
             ViewHolderOne viewHolder2 = (ViewHolderOne) viewHolder;
@@ -132,7 +135,7 @@ public class Adapter extends RecyclerView.Adapter {
     public class ViewHolderTwo extends  RecyclerView.ViewHolder {
 
         ImageView currentTempImg;
-        TextView currentTemp;
+        TextView currentTemp, condition;
 
 
         public ViewHolderTwo(@NonNull View itemView) {
@@ -141,6 +144,7 @@ public class Adapter extends RecyclerView.Adapter {
 
             currentTempImg = itemView.findViewById(R.id.currentTempImg);
             currentTemp = itemView.findViewById(R.id.currentTemp);
+            condition = itemView.findViewById(R.id.condition);
         }
 
 
@@ -148,13 +152,15 @@ public class Adapter extends RecyclerView.Adapter {
 
     public  class  ViewHolderThree extends  RecyclerView.ViewHolder{
 
-        TextView max, min;
-
+        TextView max, min, current;
+        ConstraintLayout constraintLayout;
         public ViewHolderThree(@NonNull View itemView) {
             super(itemView);
 
             max = itemView.findViewById(R.id.max_temperature);
             min = itemView.findViewById(R.id.min_temperature);
+            current = itemView.findViewById(R.id.current_temperature);
+            constraintLayout = itemView.findViewById(R.id.minMaxTemp);
         }
     }
 
